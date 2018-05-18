@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.RechargeOfflineMapper">
+    <resultMap id="BaseResultMap" type="RechargeOffline" autoMapping="true">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <association property="applier" javaType="Logininfo" column="applier_id"
+                     select="eon.p2p.base.mapper.LogininfoMapper.get"/>
+        <association property="auditor" javaType="Logininfo" column="applier_id"
+                     select="eon.p2p.base.mapper.LogininfoMapper.get"/>
+        <association property="bankInfo" javaType="BankInfo" column="bankinfo_id"
+                     select="eon.p2p.base.mapper.BankInfoMapper.selectByPrimaryKey"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from rechargeoffline
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="eon.p2p.base.domain.RechargeOffline" useGeneratedKeys="true" keyProperty="id">
+    insert into rechargeoffline (state, remark, auditTime, 
+      applyTime, auditor_id, applier_id, 
+      tradeCode, tradeTime, amount, 
+      note, bankinfo_id)
+    values (#{state,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, #{auditTime,jdbcType=TIMESTAMP},
+      #{applyTime,jdbcType=TIMESTAMP}, #{auditor.id,jdbcType=BIGINT}, #{applier.id,jdbcType=BIGINT},
+      #{tradeCode,jdbcType=VARCHAR}, #{tradeTime,jdbcType=TIMESTAMP}, #{amount,jdbcType=DECIMAL},
+      #{note,jdbcType=VARCHAR}, #{bankInfo.id,jdbcType=BIGINT})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.RechargeOffline">
+    update rechargeoffline
+    set state = #{state,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      auditTime = #{auditTime,jdbcType=TIMESTAMP},
+      applyTime = #{applyTime,jdbcType=TIMESTAMP},
+      auditor_id = #{auditor.id,jdbcType=BIGINT},
+      applier_id = #{applier.id,jdbcType=BIGINT},
+      tradeCode = #{tradeCode,jdbcType=VARCHAR},
+      tradeTime = #{tradeTime,jdbcType=TIMESTAMP},
+      amount = #{amount,jdbcType=DECIMAL},
+      note = #{note,jdbcType=VARCHAR},
+      bankinfo_id = #{bankInfo.id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select id, state, remark, auditTime, applyTime, auditor_id, applier_id, tradeCode, 
+    tradeTime, amount, note, bankinfo_id
+    from rechargeoffline
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select id, state, remark, auditTime, applyTime, auditor_id, applier_id, tradeCode, 
+    tradeTime, amount, note, bankinfo_id
+    from rechargeoffline
+  </select>
+
+    <sql id="query">
+
+    </sql>
+
+    <select id="count" resultType="long">
+        SELECT count(id) from RechargeOffline
+        <include refid="query"/>
+    </select>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT * FROM RechargeOffline
+        <include refid="query"/>
+        <if test="pageSize > 0 ">
+            limit #{start},#{pageSize}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.RealAuthMapper">
+
+    <!--全连接查询-->
+    <resultMap id="full" type="RealAuth" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="logininfo" columnPrefix="l_" javaType="Logininfo" autoMapping="true">
+            <id property="id" column="id"/>
+        </association>
+        <association property="auditor" columnPrefix="a_" javaType="Logininfo" autoMapping="true">
+            <id property="id" column="id"/>
+        </association>
+    </resultMap>
+
+
+    <!--额外查询-->
+    <resultMap id="select" type="RealAuth" autoMapping="true">
+        <association property="logininfo" column="logininfo_id" javaType="Logininfo"
+                     select="eon.p2p.base.mapper.LogininfoMapper.get"
+        />
+        <association property="auditor" column="auditor_id" javaType="Logininfo"
+                     select="eon.p2p.base.mapper.LogininfoMapper.get"/>
+    </resultMap>
+
+    <!--前台查询无n+1问题,可以使用额外sql-->
+    <select id="selectAll" resultMap="full">
+        select
+        r.id,r.address,r.birthday,r.image_behind,r.image_front,r.state,r.idNumber,r.state,r.remark,r.applyTime,
+        r.sex,l.id l_id,l.username l_username
+        from realauth r LEFT JOIN logininfo l on l.id = r.logininfo_id;
+    </select>
+
+    <select id="getOne" resultMap="select">
+        SELECT * FROM realauth
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT into realauth (sex, address, birthday, image_front, image_behind, logininfo_id, realName,idNumber, state, remark, auditTime, applyTime) VALUES
+        (#{sex},#{address},#{birthday},#{image_front},#{image_behind},#{logininfo.id},#{realName},#{idNumber},#{state},#{remark},#{auditTime},#{applyTime})
+    </insert>
+
+    <update id="update">
+        UPDATE realauth SET auditor_id = #{auditor.id},auditTime = #{auditTime},remark =  #{remark},state = #{state} where id = #{id}
+    </update>
+
+    <sql id="condition">
+        <where>
+            <if test="endTime != null">
+                AND r.applyTime &lt;= #{endTime}
+            </if>
+            <if test="beginTime != null">
+                AND r.applyTime &gt;= #{beginTime}
+            </if>
+            <if test="state >= 0">
+                AND r.state = #{state}
+            </if>
+        </where>
+    </sql>
+
+    <!--高级查询-->
+    <select id="count" resultType="long">
+        SELECT count(r.id)
+        from realauth r   JOIN logininfo l on l.id = r.logininfo_id   join logininfo a on a.id = r.logininfo_id
+        <include refid="condition"/>
+    </select>
+
+    <select id="query" resultMap="full">
+        SELECT
+        r.*,l.id l_id,l.username l_username,a.id a_id,a.username a_username
+        from realauth r  JOIN logininfo l on l.id = r.logininfo_id  join logininfo a on a.id = r.logininfo_id
+        <include refid="condition"/>
+        limit #{start},#{pageSize}
+    </select>
+
+
+</mapper>
+

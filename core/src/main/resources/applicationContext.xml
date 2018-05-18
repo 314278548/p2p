@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--注解配置-->
+    <context:component-scan base-package="eon.p2p.base"/>
+
+    <!-- 配置属性占位符 -->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!-- 配置数据库连接 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!--&lt;!&ndash; 加密过滤器  sql监控器 &ndash;&gt;-->
+        <!--<property name="filters" value="config,stat" />-->
+        <!--<property name="connectionProperties" value="config.decrypt=true" />-->
+        <!--&lt;!&ndash; <property name="filters" value="config"></property>-->
+        <!--<property name="connectionProperties" value="config.decrypt-true"></property> &ndash;&gt;-->
+    </bean>
+
+    <!-- 配置sqlsessionfactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis.cfg.xml"/>
+        <property name="typeAliasesPackage"
+                  value="eon.p2p.base.domain"/>
+        <property name="mapperLocations"
+                  value="classpath*:eon/p2p/base/mapper/*Mapper.xml"/>
+    </bean>
+
+    <!-- 配置自动扫描Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage"
+                  value="eon.p2p.base.mapper"/>
+    </bean>
+
+    <!-- 配置事务的属性 -->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <tx:method name="list*" read-only="true"/>
+            <tx:method name="select*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 事务配置 -->
+    <bean id="txManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置事务切面 -->
+    <aop:config>
+        <aop:pointcut expression="execution(* eon.p2p.base.service.*Service.*(..))"
+                      id="crudPC"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="crudPC"/>
+    </aop:config>
+</beans>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.UserInfoMapper">
+    <resultMap id="BaseResultMap" type="eon.p2p.base.domain.UserInfo" autoMapping="true">
+        <association column="incomeGrade_id" property="incomeGrade" javaType="SystemDictionaryItem"
+                     select="eon.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+        <association column="marriage_id" property="marriage" javaType="SystemDictionaryItem"
+                     select="eon.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+        <association column="kidCount_id" property="kidCount" javaType="SystemDictionaryItem"
+                     select="eon.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+        <association column="educationBackground_id" property="educationBackground" javaType="SystemDictionaryItem"
+                     select="eon.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+        <association column="houseCondition_id" property="houseCondition" javaType="SystemDictionaryItem"
+                     select="eon.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey"/>
+    </resultMap>
+
+
+    <sql id="field">
+        id, version, bitState, realName, idNumber, phoneNumber,email,score,incomeGrade_id, marriage_id,
+        kidCount_id, educationBackground_id, houseCondition_id,realAuthId
+    </sql>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from userinfo
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="eon.p2p.base.domain.UserInfo">
+    insert into userinfo (id,version, bitState, realName,
+      idNumber, phoneNumber,email,score, incomeGrade_id,
+      marriage_id, kidCount_id, educationBackground_id, 
+      houseCondition_id,realAuthId)
+    values (#{id},#{version,jdbcType=INTEGER}, #{bitState,jdbcType=BIGINT}, #{realName,jdbcType=VARCHAR},
+      #{idNumber,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR},#{email},#{score}, #{incomeGrade.id,jdbcType=BIGINT},
+      #{marriage.id,jdbcType=BIGINT}, #{kidCount.id,jdbcType=BIGINT}, #{educationBackground.id,jdbcType=BIGINT},
+      #{houseCondition.id,jdbcType=BIGINT},#{realAuthId})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.UserInfo">
+    update userinfo
+    set version = #{version,jdbcType=INTEGER}+1,
+      bitState = #{bitState,jdbcType=BIGINT},
+      realName = #{realName,jdbcType=VARCHAR},
+      idNumber = #{idNumber,jdbcType=VARCHAR},
+      phoneNumber = #{phoneNumber,jdbcType=VARCHAR},
+      email = #{email},
+      score = #{score},
+      realAuthId = #{realAuthId},
+      incomeGrade_id = #{incomeGrade.id,jdbcType=BIGINT},
+      marriage_id = #{marriage.id,jdbcType=BIGINT},
+      kidCount_id = #{kidCount.id,jdbcType=BIGINT},
+      educationBackground_id = #{educationBackground.id,jdbcType=BIGINT},
+      houseCondition_id = #{houseCondition.id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT} and version = #{version}
+  </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="field"/>
+        from userinfo
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="field"/>
+        from userinfo
+    </select>
+
+    <select id="judgePhoneIsBind" resultType="java.lang.Long">
+        SELECT count(id) FROM userinfo
+        WHERE phoneNumber = #{phoneNumber}
+    </select>
+</mapper>

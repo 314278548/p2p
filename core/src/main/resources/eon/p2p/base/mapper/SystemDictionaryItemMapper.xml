@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.SystemDictionaryItemMapper">
+    <resultMap id="BaseResultMap" type="eon.p2p.base.domain.SystemDictionaryItem">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="parentId" property="parentId" jdbcType="BIGINT"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="sequence" property="sequence" jdbcType="VARCHAR"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from SystemDictionaryItem
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="eon.p2p.base.domain.SystemDictionaryItem" useGeneratedKeys="true"
+            keyProperty="id">
+    insert into SystemDictionaryItem (parentId, title,sequence)
+    values (#{parentId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR},#{sequence})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.SystemDictionaryItem">
+    update SystemDictionaryItem
+    set parentId = #{parentId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},sequence = #{sequence}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select id, parentId, title,sequence
+    from SystemDictionaryItem
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select id, parentId, title,sequence
+    from SystemDictionaryItem
+  </select>
+
+    <sql id="condition">
+        <where>
+            <if test="keyword != null">
+                AND title LIKE concat("%",#{keyword},"%")
+            </if>
+            <if test="parentId != null">
+                and parentId  = #{parentId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="count" resultType="long">
+        SELECT count(id) FROM systemdictionaryitem
+        <include refid="condition"/>
+    </select>
+
+    <select id="queryItem" resultMap="BaseResultMap">
+        SELECT id, parentId, title,sequence FROM systemdictionaryitem
+        <include refid="condition"/>
+        limit #{start},#{pageSize}
+    </select>
+
+</mapper>

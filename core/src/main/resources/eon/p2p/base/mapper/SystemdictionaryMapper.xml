@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.SystemDictionaryMapper">
+    <resultMap id="BaseResultMap" type="eon.p2p.base.domain.SystemDictionary">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="sn" property="sn" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="intro" property="intro" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="item" type="SystemDictionaryItem" autoMapping="true">
+    </resultMap>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from systemdictionary
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <insert id="insert" parameterType="eon.p2p.base.domain.SystemDictionary" useGeneratedKeys="true" keyProperty="id">
+    insert into systemdictionary (sn, title,state,intro)
+    values (#{sn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR},#{state},#{intro})
+  </insert>
+
+    <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.SystemDictionary">
+    update systemdictionary
+    set sn = #{sn,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},intro = #{intro},state = #{state}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <sql id="field">
+        id, sn, title,state,intro
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select <include refid="field"/>
+    from systemdictionary
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+    select <include refid="field"/>
+    from systemdictionary
+  </select>
+
+    <sql id="condition">
+        <where>
+            <if test="keyword != null">
+                AND title LIKE concat("%",#{keyword},"%") or intro LIKE concat("%",#{keyword},"%")
+            </if>
+            <if test="state != null">
+                AND state = #{state}
+            </if>
+        </where>
+    </sql>
+
+    <select id="count" resultType="long">
+        SELECT count(id) FROM systemdictionary
+        <include refid="condition"/>
+    </select>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT id, sn, title,state,intro FROM systemdictionary
+        <include refid="condition"/>
+    </select>
+
+    <select id="selectItemByParent" resultMap="item">
+        SELECT item.id id,item.parentId parentId,item.title title,item.sequence sequence FROM systemdictionaryitem item
+        JOIN systemdictionary s ON s.id = item.parentId WHERE s.sn = #{sn}
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.BidMapper">
+
+    <resultMap id="BaseResultMap" type="eon.p2p.base.domain.Bid" autoMapping="true">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <association column="bidUser_id" property="bidUser" javaType="Logininfo" autoMapping="true">
+            <id property="id" column="id"/>
+        </association>
+    </resultMap>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from bid
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="eon.p2p.base.domain.Bid" useGeneratedKeys="true" keyProperty="id">
+    insert into bid (actualRate, availableAmount, bidrequest_id,
+      bidUser_id, bidTime, bidRequestTitle
+      )
+    values (#{actualRate,jdbcType=DECIMAL}, #{availableAmount,jdbcType=DECIMAL}, #{bidRequestId,jdbcType=BIGINT},
+      #{bidUser.id,jdbcType=BIGINT}, #{bidTime,jdbcType=TIMESTAMP}, #{bidRequestTitle,jdbcType=VARCHAR}
+      )
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.Bid">
+    update bid
+    set actualRate = #{actualRate,jdbcType=DECIMAL},
+      availableAmount = #{availableAmount,jdbcType=DECIMAL},
+      bidrequest_id = #{bidRequestId,jdbcType=BIGINT},
+      bidUser_id = #{bidUser.id,jdbcType=BIGINT},
+      bidTime = #{bidTime,jdbcType=TIMESTAMP},
+      bidRequestTitle = #{bidRequestTitle,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select id, actualRate, availableAmount, bidrequest_id, bidUser_id, bidTime, bidRequestTitle
+    from bid
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select id, actualRate, availableAmount, bidrequest_id, bidUser_id, bidTime, bidRequestTitle
+    from bid
+  </select>
+</mapper>

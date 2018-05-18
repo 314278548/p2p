@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="eon.p2p.base.mapper.BankInfoMapper" >
+  <resultMap id="BaseResultMap" type="eon.p2p.base.domain.BankInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="bankName" property="bankName" jdbcType="VARCHAR" />
+    <result column="accountname" property="accountName" jdbcType="VARCHAR" />
+    <result column="banknumber" property="bankNumber" jdbcType="VARCHAR" />
+    <result column="bankforkname" property="bankForkName" jdbcType="VARCHAR" />
+    <result column="iconCls" property="iconCls" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from bankinfo
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="eon.p2p.base.domain.BankInfo" useGeneratedKeys="true" keyProperty="id" >
+    insert into bankinfo (bankName, accountname, banknumber, 
+      bankforkname, iconCls)
+    values (#{bankName,jdbcType=VARCHAR}, #{accountName,jdbcType=VARCHAR}, #{bankNumber,jdbcType=VARCHAR},
+      #{bankForkName,jdbcType=VARCHAR}, #{iconCls,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="eon.p2p.base.domain.BankInfo" >
+    update bankinfo
+    set bankName = #{bankName,jdbcType=VARCHAR},
+      accountname = #{accountName,jdbcType=VARCHAR},
+      banknumber = #{bankNumber,jdbcType=VARCHAR},
+      bankforkname = #{bankForkName,jdbcType=VARCHAR},
+      iconCls = #{iconCls,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, bankName, accountname, banknumber, bankforkname, iconCls
+    from bankinfo
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, bankName, accountname, banknumber, bankforkname, iconCls
+    from bankinfo
+  </select>
+
+  <select id="count" resultType="long">
+    select count(id) FROM bankinfo
+  </select>
+
+  <select id="query" resultMap="BaseResultMap">
+    SELECT * FROM bankinfo
+    <if test="pageSize > 0">
+      limit #{start},#{pageSize}
+    </if>
+  </select>
+</mapper>
