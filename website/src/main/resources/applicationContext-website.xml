@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="applicationContext.xml"/>
+
+    <mvc:annotation-driven/>
+    <!--开启注解扫描-->
+    <context:component-scan base-package="eon.p2p.base"/>
+
+    <!--配置freemarker模板路径-->
+    <bean id="freemarkerConfiguration" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!--配置编码格式-->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!--配置寻找模板的路径-->
+        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
+    </bean>
+
+    <!--处理上传 -->
+    <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+        <!-- 在spring中,SpEL,#{}中的内容都是可以让spring来帮我们计算的内容 -->
+        <property name="maxUploadSize" value="#{1024*1024*100}" />
+    </bean>
+
+    <!--freemarker视图解析器-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="exposeSessionAttributes" value="true"/>
+        <!--配置逻辑视图的添加后缀-->
+        <property name="suffix" value=".ftl"/>
+        <!--配置视图输出的HTML的contentType-->
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+    </bean>
+
+    <!--登录拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="eon.p2p.base.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+</beans>
